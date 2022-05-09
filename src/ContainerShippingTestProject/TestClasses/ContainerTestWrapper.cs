@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ContainerShippingTestProject.TestClasses
 {
-    class ContainerTestWrapper : Container
+    class ContainerTestWrapper : BaseContainer
     {
         public ContainerTestWrapper(int id, string description, string originCountry) : base(id, description, originCountry)
         {

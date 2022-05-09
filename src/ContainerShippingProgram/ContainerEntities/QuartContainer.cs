@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ContainerShippingProgram.ContainerEntities
 {
-    public class QuartContainer : Container
+    public class QuartContainer : BaseContainer
     {
         /// <summary>
         /// Default constructor for quart containers

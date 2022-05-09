@@ -10,7 +10,7 @@ namespace ContainerShippingProgram.ContainerEntities
     /// <summary>
     /// A class representing the full container type
     /// </summary>
-    public class FullContainer : Container
+    public class FullContainer : BaseContainer
     {
         //TODO: Do you need public sets for values or should everything be set upon creation?
         private decimal weight;

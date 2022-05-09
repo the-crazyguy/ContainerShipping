@@ -12,7 +12,7 @@ namespace ContainerShippingProgram.Controllers
         /// <summary>
         /// The saved containers
         /// </summary>
-        public IReadOnlyCollection<Container> Containers { get; }
+        public IReadOnlyCollection<BaseContainer> Containers { get; }
 
         #endregion
 

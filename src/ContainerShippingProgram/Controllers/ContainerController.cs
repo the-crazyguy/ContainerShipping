@@ -15,11 +15,11 @@ namespace ContainerShippingProgram.Controllers
     /// </summary>
     internal class ContainerController : IContainerController
     {
-        private List<Container> containers;
+        private List<BaseContainer> containers;
         /// <summary>
         /// The saved containers
         /// </summary>
-        public IReadOnlyCollection<Container> Containers => containers.AsReadOnly();
+        public IReadOnlyCollection<BaseContainer> Containers => containers.AsReadOnly();
 
         private IServer server;
 
@@ -52,7 +52,7 @@ namespace ContainerShippingProgram.Controllers
         /// </summary>
         public ContainerController()
         {
-            containers = new List<Container>();
+            containers = new List<BaseContainer>();
             server = new Server("0.0.0.0", 1234);
             
             serverCts = new CancellationTokenSource();

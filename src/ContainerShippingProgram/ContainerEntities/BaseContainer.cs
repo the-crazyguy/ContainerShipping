@@ -10,7 +10,7 @@ namespace ContainerShippingProgram.ContainerEntities
     /// <summary>
     /// A base class for all containers
     /// </summary>
-    public abstract class Container
+    public abstract class BaseContainer
     {
         //TODO: Id auto-increments and has to be unique - check in controller
         private int id;
@@ -46,7 +46,7 @@ namespace ContainerShippingProgram.ContainerEntities
         /// <param name="id">The unique id of the container</param>
         /// <param name="description">The description of the container</param>
         /// <param name="originCountry">The country of origin of the container</param>
-        public Container(int id, string description, string originCountry)
+        public BaseContainer(int id, string description, string originCountry)
         {
             // Data validity is checked in the setters
             Id = id;
