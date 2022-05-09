@@ -22,11 +22,11 @@ namespace ContainerShippingProgram.Controllers
         /// <summary>
         /// Event for when an unrecognized command is received
         /// </summary>
-        public event EventHandler<CommandEventArgs> UnrecognizedCommandReceived;
+        public event EventHandler<MessageEventArgs> UnrecognizedCommandReceived;
         /// <summary>
         /// Event for when a message that has to be displayed by the view is received
         /// </summary>
-        public event EventHandler<CommandEventArgs> MessageToPrintReceived;
+        public event EventHandler<MessageEventArgs> MessageToPrintReceived;
         /// <summary>
         /// Event for when an empty command has been received
         /// </summary>

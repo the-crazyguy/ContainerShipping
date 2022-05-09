@@ -7,29 +7,29 @@ using System.Threading.Tasks;
 namespace ContainerShippingProgram.Events
 {
     /// <summary>
-    /// EventArgs for command events to provide the appropriate command
+    /// EventArgs for command events to provide the appropriate message
     /// </summary>
-    internal class CommandEventArgs : EventArgs
+    internal class MessageEventArgs : EventArgs
     {
         /// <summary>
         /// The command for the event
         /// </summary>
-        public string Command { get; set; }
+        public string Message { get; set; }
 
         /// <summary>
         /// Default constructor
         /// </summary>
-        public CommandEventArgs() : this(string.Empty)
+        public MessageEventArgs() : this(string.Empty)
         {
         }
 
         /// <summary>
         /// Constructor which directly provides a command to send
         /// </summary>
-        /// <param name="command">The command to send</param>
-        public CommandEventArgs(string command)
+        /// <param name="message">The command to send</param>
+        public MessageEventArgs(string message)
         {
-            Command = command;
+            Message = message;
         }
     }
 }

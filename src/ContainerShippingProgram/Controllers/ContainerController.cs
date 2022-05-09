@@ -35,11 +35,11 @@ namespace ContainerShippingProgram.Controllers
         /// <summary>
         /// Event for when an unrecognized command is received
         /// </summary>
-        public event EventHandler<CommandEventArgs> UnrecognizedCommandReceived;
+        public event EventHandler<MessageEventArgs> UnrecognizedCommandReceived;
         /// <summary>
         /// Event for when a message that has to be displayed by the view is received
         /// </summary>
-        public event EventHandler<CommandEventArgs> MessageToPrintReceived; //TODO: Rename, use another eventArgs?
+        public event EventHandler<MessageEventArgs> MessageToPrintReceived; //TODO: Rename, use another eventArgs?
         /// <summary>
         /// Event for when an empty command has been received
         /// </summary>
@@ -135,7 +135,7 @@ namespace ContainerShippingProgram.Controllers
             }
 
             //TODO: Rename
-            CommandEventArgs currentCommandEventArgs = new CommandEventArgs();
+            MessageEventArgs currentCommandEventArgs = new MessageEventArgs();
 
 
             //Infinite loop - keep server alive for the duration of the program
@@ -150,7 +150,7 @@ namespace ContainerShippingProgram.Controllers
 
                 //TODO: Take in commands
                 //TODO: Remove - not in accordance to the protocol, here for testing purposes
-                currentCommandEventArgs.Command = "Server ready";
+                currentCommandEventArgs.Message = "Server ready";
                 MessageToPrintReceived?.Invoke(this, currentCommandEventArgs);
 
                 // Accept client
@@ -160,7 +160,7 @@ namespace ContainerShippingProgram.Controllers
                 if (server.IsClientConnected)
                 {
                     server.WriteLine(ProtocolMessages.Welcome);
-                    currentCommandEventArgs.Command = ProtocolMessages.Welcome;
+                    currentCommandEventArgs.Message = ProtocolMessages.Welcome;
                     MessageToPrintReceived?.Invoke(this, currentCommandEventArgs);
                 }
 
@@ -287,6 +287,7 @@ namespace ContainerShippingProgram.Controllers
                 case ContainerBuildingState.SaveContainer:
                     containers.Add(currentContainerBuilder.GetContainer());
                     currentContainerBuilder.ResetObject();
+                    //TODO: Determine whether to end the connection or keep reading via the view - let the user set up the server
                     containerBuildingState = ContainerBuildingState.WaitingForStart;
                     break;
                 
