@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using ContainerShippingProgram.Servers;
+using ContainerShippingProgram.States;
 
 namespace ContainerShippingProgram.Controllers
 {
@@ -28,6 +29,7 @@ namespace ContainerShippingProgram.Controllers
         private CancellationTokenSource serverCts;
         private CancellationTokenSource commandCts;
 
+        
 
         //Events
         /// <summary>
@@ -154,7 +156,7 @@ namespace ContainerShippingProgram.Controllers
                 // Accept client
                 server.AcceptClient();
 
-                //TODO: If the client is active, send welcome message
+                //Send welcome message
                 if (server.IsClientConnected)
                 {
                     server.WriteLine(ProtocolMessages.Welcome);
@@ -169,26 +171,38 @@ namespace ContainerShippingProgram.Controllers
                 CancellationToken commandCencellationToken = commandCts.Token;
 
                 // Read data
-                HandleReadingData(commandCencellationToken);
+                HandleCommunication(commandCencellationToken);
 
                 // Client wants to disconnect
                 server.DisconnectClient();
             }
         }
 
+
         /// <summary>
-        /// Handles the reading of incoming data
+        /// Handles the server-client communication
         /// </summary>
-        /// <param name="token">The cancellation token that with which to stop reading data</param>
-        private void HandleReadingData(CancellationToken token)
+        /// <param name="token">The cancellation token with which to stop reading new data</param>
+        private void HandleCommunication(CancellationToken token)
         {
             do
             {
                 string command = server.ReadLine().Trim();
                 HandleCommand(command);
-            } 
+            }
             while (!token.IsCancellationRequested);
         }
+
+        // TODO: Move to top
+        private ContainerHandlingState containerState = ContainerHandlingState.WaitingForStart;
+        // TODO: Reduce scope
+        //private BaseContainer currentContainer = null;
+        //private string currentContainerType = null;
+        //private decimal currentContainerWeight = 0m;
+        //private decimal currentContainerVolume = 0m;
+        //private bool currentContainerIsRefridgerated = false;
+        private ContainerBuilder currentContainerBuilder = new ContainerBuilder();
+
 
         /// <summary>
         /// Handles the provided command
@@ -196,24 +210,97 @@ namespace ContainerShippingProgram.Controllers
         /// <param name="command">The command to handle</param>
         private void HandleCommand(string command)
         {
+            if (command == null)
+            {
+                //null commands are ignored
+                return;
+            }
+
+            // TODO: Remove if unnecessary
             if (string.IsNullOrWhiteSpace(command))
             {
                 EmptyCommandReceived?.Invoke(this, EventArgs.Empty);
+                return;
             }
 
-            switch (command)
+            if (command == ProtocolMessages.Stop)
             {
-                case ProtocolMessages.Stop:
-                    server.WriteLine(ProtocolMessages.Acknowledge);
-                    StopCommandReceived?.Invoke(this, EventArgs.Empty); //Event is raised in case the view needs to inform the user
+                server.WriteLine(ProtocolMessages.Acknowledge);
+                StopCommandReceived?.Invoke(this, EventArgs.Empty); //Event is raised in case the view needs to react
+                return;
+            }
+
+            switch (containerState)
+            {
+                case ContainerHandlingState.WaitingForStart:
+                    if (command == ProtocolMessages.Start)
+                    {
+                        server.WriteLine(ProtocolMessages.Type);
+                        // Go to the next state
+                        containerState = ContainerHandlingState.DetermineType;
+                    }
                     break;
-                
+
+                case ContainerHandlingState.DetermineType:
+                    switch (command)
+                    {
+                        case ProtocolMessages.FullType:
+                            currentContainerBuilder.Type = ProtocolMessages.FullType;
+                            server.WriteLine(ProtocolMessages.Refridgerated);
+                            containerState = ContainerHandlingState.DetermineRefridgeration;
+                            break;
+
+                        case ProtocolMessages.HalfType:
+                            currentContainerBuilder.Type = ProtocolMessages.HalfType;
+                            break;
+
+                        case ProtocolMessages.QuartType:
+                            currentContainerBuilder.Type = ProtocolMessages.QuartType;
+                            break;
+
+                        default:
+                            // TODO: Exception/Error
+                            break;
+                    }
+
+                    break;
+
+
+                case ContainerHandlingState.DetermineRefridgeration:
+                    switch (command)
+                    {
+                        case ProtocolMessages.Yes:
+
+                            break;
+
+                        case ProtocolMessages.No:
+                            break;
+
+                        default:
+                            break;
+                    }
+                    break;
+                case ContainerHandlingState.DetermineWeight:
+                    break;
+                case ContainerHandlingState.DetermineVolume:
+                    break;
                 default:
-                    //Unrecognized command, raise an event
-                    //Question/TODO: Should empty commands be treated as unrecognized commands to eliminate the need for the extra event?
-                    UnrecognizedCommandReceived?.Invoke(this, new CommandEventArgs(command));
                     break;
             }
+
+            // TODO: Unrecognized command handling
+            //Unrecognized command, raise an event
+            //Question/TODO: Should empty commands be treated as unrecognized commands to eliminate the need for the extra event?
+            //UnrecognizedCommandReceived?.Invoke(this, new CommandEventArgs(command));
+        }
+
+        /// <summary>
+        /// Handles commands which are not tied to the container handling state
+        /// </summary>
+        /// <param name="command">The command to handle</param>
+        private void HandleBasicCommand(string command)
+        {
+            
         }
     }
 }

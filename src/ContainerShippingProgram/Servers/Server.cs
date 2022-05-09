@@ -106,6 +106,8 @@ namespace ContainerShippingProgram.Servers
             streamWriter = null;
         }
 
+        // TODO: method to check if data is available
+
         /// <summary>
         /// Reads a line from the server
         /// </summary>

@@ -12,10 +12,15 @@ namespace ContainerShippingProgram
         public const string Start = "START";
         public const string Stop = "STOP";
 
+        public const string Type = "TYPE";
         public const string FullType = "FULL";
         public const string HalfType = "HALF";
         public const string QuartType = "QUART";
-        
+
+        public const string Refridgerated = "FRIDGE";
+        public const string Volume = "VOLUME";
+        public const string Weight = "WEIGHT";
+
         public const string Yes = "YES";
         public const string No = "NO";
 
