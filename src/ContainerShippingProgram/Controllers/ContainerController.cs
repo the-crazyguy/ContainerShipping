@@ -193,14 +193,8 @@ namespace ContainerShippingProgram.Controllers
             while (!token.IsCancellationRequested);
         }
 
-        // TODO: Move to top
-        private ContainerHandlingState containerState = ContainerHandlingState.WaitingForStart;
-        // TODO: Reduce scope
-        //private BaseContainer currentContainer = null;
-        //private string currentContainerType = null;
-        //private decimal currentContainerWeight = 0m;
-        //private decimal currentContainerVolume = 0m;
-        //private bool currentContainerIsRefridgerated = false;
+        // TODO: Move to top and initialize in constructor
+        private ContainerBuildingState containerBuildingState = ContainerBuildingState.WaitingForStart;
         private ContainerBuilder currentContainerBuilder = new ContainerBuilder();
 
 
@@ -230,32 +224,35 @@ namespace ContainerShippingProgram.Controllers
                 return;
             }
 
-            switch (containerState)
+            switch (containerBuildingState)
             {
-                case ContainerHandlingState.WaitingForStart:
+                case ContainerBuildingState.WaitingForStart:
                     if (command == ProtocolMessages.Start)
                     {
                         server.WriteLine(ProtocolMessages.Type);
                         // Go to the next state
-                        containerState = ContainerHandlingState.DetermineType;
+                        containerBuildingState = ContainerBuildingState.DetermineType;
                     }
                     break;
 
-                case ContainerHandlingState.DetermineType:
+                case ContainerBuildingState.DetermineType:
                     switch (command)
                     {
                         case ProtocolMessages.FullType:
                             currentContainerBuilder.Type = ProtocolMessages.FullType;
                             server.WriteLine(ProtocolMessages.Refridgerated);
-                            containerState = ContainerHandlingState.DetermineRefridgeration;
+                            containerBuildingState = ContainerBuildingState.DetermineRefridgeration;
                             break;
 
                         case ProtocolMessages.HalfType:
                             currentContainerBuilder.Type = ProtocolMessages.HalfType;
+                            server.WriteLine(ProtocolMessages.Volume);
+                            containerBuildingState = ContainerBuildingState.DetermineVolume;
                             break;
 
                         case ProtocolMessages.QuartType:
                             currentContainerBuilder.Type = ProtocolMessages.QuartType;
+                            containerBuildingState = ContainerBuildingState.SaveContainer;
                             break;
 
                         default:
@@ -265,8 +262,7 @@ namespace ContainerShippingProgram.Controllers
 
                     break;
 
-
-                case ContainerHandlingState.DetermineRefridgeration:
+                case ContainerBuildingState.DetermineRefridgeration:
                     switch (command)
                     {
                         case ProtocolMessages.Yes:
@@ -280,11 +276,22 @@ namespace ContainerShippingProgram.Controllers
                             break;
                     }
                     break;
-                case ContainerHandlingState.DetermineWeight:
+
+                case ContainerBuildingState.DetermineWeight:
+                    
                     break;
-                case ContainerHandlingState.DetermineVolume:
+                
+                case ContainerBuildingState.DetermineVolume:
                     break;
+                
+                case ContainerBuildingState.SaveContainer:
+                    containers.Add(currentContainerBuilder.GetContainer());
+                    currentContainerBuilder.ResetObject();
+                    containerBuildingState = ContainerBuildingState.WaitingForStart;
+                    break;
+                
                 default:
+                    // TODO...
                     break;
             }
 

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ContainerShippingProgram.States
 {
-    enum ContainerHandlingState
+    enum ContainerBuildingState
     {
         //TODO: is there a better way to handle...?
         WaitingForStart,
@@ -14,6 +14,6 @@ namespace ContainerShippingProgram.States
         DetermineRefridgeration,
         DetermineWeight,
         DetermineVolume,
-
+        SaveContainer
     }
 }
