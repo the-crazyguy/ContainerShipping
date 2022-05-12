@@ -41,6 +41,14 @@ namespace ContainerShippingProgram.ContainerEntities
         }
 
         /// <summary>
+        /// Constructor to create a half container from a provided base container
+        /// </summary>
+        /// <param name="source">The base container from which to create a half container</param>
+        public HalfContainer(BaseContainer source) : this(source.Id, source.Description, source.OriginCountry)
+        {
+        }
+
+        /// <summary>
         /// Detailed constructor for half containers
         /// </summary>
         /// <param name="id">The unique id of the container</param>

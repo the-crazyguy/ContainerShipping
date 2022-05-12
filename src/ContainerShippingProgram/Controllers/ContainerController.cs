@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ContainerShippingProgram.Servers;
 using ContainerShippingProgram.States;
+using ContainerShippingProgram.Exceptions;
 
 namespace ContainerShippingProgram.Controllers
 {
@@ -22,6 +23,9 @@ namespace ContainerShippingProgram.Controllers
         /// </summary>
         public IReadOnlyCollection<BaseContainer> Containers => containers.AsReadOnly();
 
+        private int currentContainerId;
+        private int GetNewContainerId() => currentContainerId++;
+
         private IServer server;
 
         private Thread serverThread;
@@ -29,13 +33,12 @@ namespace ContainerShippingProgram.Controllers
         private CancellationTokenSource serverCts;
         private CancellationTokenSource commandCts;
 
-        
 
         //Events
         /// <summary>
         /// Event for when an unrecognized command is received
         /// </summary>
-        public event EventHandler<MessageEventArgs> UnrecognizedCommandReceived;
+        public event EventHandler<MessageEventArgs> UnrecognizedCommandReceived;    // TODO: Use another eventArgs for the commands
         /// <summary>
         /// Event for when a message that has to be displayed by the view is received
         /// </summary>
@@ -54,6 +57,8 @@ namespace ContainerShippingProgram.Controllers
         /// </summary>
         public ContainerController()
         {
+            currentContainerId = 0;
+
             containers = new List<BaseContainer>();
             server = new Server("0.0.0.0", 1234);
             
@@ -80,6 +85,7 @@ namespace ContainerShippingProgram.Controllers
         /// </summary>
         private void StopCommandReceivedEventHandler(object sender, EventArgs e)
         {
+            currentContainer = null;
             commandCts.Cancel();
         }
 
@@ -136,7 +142,6 @@ namespace ContainerShippingProgram.Controllers
                 server.Start();
             }
 
-            //TODO: Rename
             MessageEventArgs currentMessageEventArgs = new MessageEventArgs();
 
 
@@ -164,6 +169,8 @@ namespace ContainerShippingProgram.Controllers
                     server.WriteLine(ProtocolMessages.Welcome);
                     currentMessageEventArgs.Message = ProtocolMessages.Welcome;
                     MessageToPrintReceived?.Invoke(this, currentMessageEventArgs);
+
+                    containerBuildingState = ContainerBuildingState.WaitingForStart;
                 }
 
 
@@ -200,8 +207,8 @@ namespace ContainerShippingProgram.Controllers
 
         // TODO: Move to top and initialize in constructor
         private ContainerBuildingState containerBuildingState = ContainerBuildingState.WaitingForStart;
-        private ContainerBuilder currentContainerBuilder = new ContainerBuilder();
-
+        private BaseContainer currentContainer = null;
+        //private ContainerBuilder currentContainerBuilder = new ContainerBuilder();
 
         /// <summary>
         /// Handles the provided command
@@ -235,7 +242,9 @@ namespace ContainerShippingProgram.Controllers
                 case ContainerBuildingState.WaitingForStart:
                     if (command == ProtocolMessages.Start)
                     {
+                        currentContainer = new BaseContainer(GetNewContainerId());
                         server.WriteLine(ProtocolMessages.Type);
+                        //TODO: Description and origin country
                         // Go to the next state
                         containerBuildingState = ContainerBuildingState.DetermineType;
                     }
@@ -245,76 +254,107 @@ namespace ContainerShippingProgram.Controllers
                     switch (command)
                     {
                         case ProtocolMessages.FullType:
-                            currentContainerBuilder.Type = ProtocolMessages.FullType;
+                            currentContainer = new FullContainer(currentContainer);
                             server.WriteLine(ProtocolMessages.Refridgerated);
+                            // Go to the next state
                             containerBuildingState = ContainerBuildingState.DetermineRefridgeration;
                             break;
 
                         case ProtocolMessages.HalfType:
-                            currentContainerBuilder.Type = ProtocolMessages.HalfType;
+                            currentContainer = new HalfContainer(currentContainer);
                             server.WriteLine(ProtocolMessages.Volume);
+                            // Go to the next state
                             containerBuildingState = ContainerBuildingState.DetermineVolume;
                             break;
 
                         case ProtocolMessages.QuartType:
-                            currentContainerBuilder.Type = ProtocolMessages.QuartType;
+                            currentContainer = new QuartContainer(currentContainer);
+                            // Go to the next state
                             containerBuildingState = ContainerBuildingState.SaveContainer;
                             break;
 
                         default:
-                            // TODO: Exception/Error
-                            break;
+                            throw new InvalidContainerTypeException();
                     }
-
                     break;
 
                 case ContainerBuildingState.DetermineRefridgeration:
+                    if (currentContainer is not FullContainer)
+                    {
+                        throw new InvalidContainerTypeException();
+                    }
+
                     switch (command)
                     {
                         case ProtocolMessages.Yes:
-
+                            (currentContainer as FullContainer).IsRefridgerated = true;
                             break;
 
                         case ProtocolMessages.No:
+                            (currentContainer as FullContainer).IsRefridgerated = false;
                             break;
 
                         default:
-                            break;
+                            //UnrecognizedCommandReceived?.Invoke(this, new MessageEventArgs(command));
+                            throw new UnrecognizedCommandException(command);
                     }
+
+                    server.WriteLine(ProtocolMessages.Weight);
+                    // Go to the next state
+                    containerBuildingState = ContainerBuildingState.DetermineWeight;
                     break;
 
                 case ContainerBuildingState.DetermineWeight:
-                    
+                    {
+                        if (currentContainer is not FullContainer)
+                        {
+                            throw new InvalidContainerTypeException();
+                        }
+
+                        if (!decimal.TryParse(command, out decimal containerWeight))
+                        {
+                            throw new InvalidContainerWeightException();
+                        }
+
+                        (currentContainer as FullContainer).Weight = containerWeight;
+                    }
+                    // Go to the next state
+                    containerBuildingState = ContainerBuildingState.SaveContainer;
                     break;
                 
                 case ContainerBuildingState.DetermineVolume:
+                    {
+                        if (currentContainer is not HalfContainer)
+                        {
+                            throw new InvalidContainerTypeException();
+                        }
+
+                        if (!decimal.TryParse(command, out decimal containerVolume))
+                        {
+                            throw new InvalidContainerVolumeException();
+                        }
+
+                        (currentContainer as HalfContainer).Volume = containerVolume;
+                    }
+                    // Go to the next state
+                    containerBuildingState = ContainerBuildingState.SaveContainer;
                     break;
                 
                 case ContainerBuildingState.SaveContainer:
-                    containers.Add(currentContainerBuilder.GetContainer());
-                    currentContainerBuilder.ResetObject();
+                    containers.Add(currentContainer);
+                    currentContainer = null;
                     //TODO: Determine whether to end the connection or keep reading via the view - let the user set up the server
                     containerBuildingState = ContainerBuildingState.WaitingForStart;
                     break;
                 
                 default:
-                    // TODO...
-                    break;
+                    throw new InvalidContainerBuildingStateException();
             }
 
             // TODO: Unrecognized command handling
             //Unrecognized command, raise an event
             //Question/TODO: Should empty commands be treated as unrecognized commands to eliminate the need for the extra event?
             //UnrecognizedCommandReceived?.Invoke(this, new CommandEventArgs(command));
-        }
-
-        /// <summary>
-        /// Handles commands which are not tied to the container handling state
-        /// </summary>
-        /// <param name="command">The command to handle</param>
-        private void HandleBasicCommand(string command)
-        {
-            
         }
     }
 }

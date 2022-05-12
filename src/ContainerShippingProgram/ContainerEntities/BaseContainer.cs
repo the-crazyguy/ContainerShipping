@@ -10,7 +10,7 @@ namespace ContainerShippingProgram.ContainerEntities
     /// <summary>
     /// A base class for all containers
     /// </summary>
-    public abstract class BaseContainer
+    public class BaseContainer
     {
         //TODO: Id auto-increments and has to be unique - check in controller
         private int id;
@@ -68,6 +68,9 @@ namespace ContainerShippingProgram.ContainerEntities
         /// Method to calculate the container's fees. Each sub-container type implements its own fee calculation logic
         /// </summary>
         /// <returns>The total fees for the container</returns>
-        public abstract decimal CalculateFees();
+        public virtual decimal CalculateFees()
+        {
+            return ProgramConstants.FixedFee;
+        }
     }
 }

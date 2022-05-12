@@ -17,6 +17,14 @@ namespace ContainerShippingProgram.ContainerEntities
         }
 
         /// <summary>
+        /// Constructor to create a quart container from a provided base container
+        /// </summary>
+        /// <param name="source">The base container from which to create a quart container</param>
+        public QuartContainer(BaseContainer source) : this(source.Id, source.Description, source.OriginCountry)
+        {
+        }
+
+        /// <summary>
         /// Detailed constructor for quart containers
         /// </summary>
         /// <param name="id">The unique id of the container</param>

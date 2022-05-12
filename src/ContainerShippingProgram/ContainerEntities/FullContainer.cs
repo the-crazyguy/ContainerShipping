@@ -48,6 +48,14 @@ namespace ContainerShippingProgram.ContainerEntities
         }
 
         /// <summary>
+        /// Constructor to create a full container from a provided base container
+        /// </summary>
+        /// <param name="source">The base container from which to create a full container</param>
+        public FullContainer(BaseContainer source) : this(source.Id, source.Description, source.OriginCountry)
+        {
+        }
+
+        /// <summary>
         /// Detailed constructor for a full container
         /// </summary>
         /// <param name="id">The unique id of the container</param>
@@ -70,6 +78,7 @@ namespace ContainerShippingProgram.ContainerEntities
             Weight = weight;
             IsRefridgerated = isRefridgerated;
         }
+
 
         /// <summary>
         /// Calculates the fees for the container
