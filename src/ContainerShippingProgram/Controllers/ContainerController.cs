@@ -187,6 +187,7 @@ namespace ContainerShippingProgram.Controllers
         {
             do
             {
+                // NOTE: ReadLine IS BLOCKING
                 string command = server.ReadLine().Trim();
                 HandleCommand(command);
             }
@@ -204,6 +205,7 @@ namespace ContainerShippingProgram.Controllers
         /// <param name="command">The command to handle</param>
         private void HandleCommand(string command)
         {
+            // TODO: should null commands be ignored or treated as stop?
             if (command == null)
             {
                 //null commands are ignored

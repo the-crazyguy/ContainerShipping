@@ -109,7 +109,7 @@ namespace ContainerShippingProgram.Servers
         // TODO: method to check if data is available
 
         /// <summary>
-        /// Reads a line from the server
+        /// Reads a line from the server. Blocking
         /// </summary>
         /// <returns>The line read</returns>
         public string ReadLine()
@@ -119,7 +119,7 @@ namespace ContainerShippingProgram.Servers
                 //TODO: throw an exception?
                 return string.Empty;
             }
-
+            
             return streamReader.ReadLine();
         }
 
