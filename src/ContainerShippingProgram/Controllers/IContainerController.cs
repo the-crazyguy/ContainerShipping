@@ -34,7 +34,7 @@ namespace ContainerShippingProgram.Controllers
         /// <summary>
         /// Event for when the stop command has been received
         /// </summary>
-        public event EventHandler DisconnectionRequested;
+        public event EventHandler<DisconnectEventArgs> DisconnectionRequested;
 
         #endregion
 
