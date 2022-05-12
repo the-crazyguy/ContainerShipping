@@ -92,6 +92,8 @@ namespace ContainerShippingProgram.Controllers
             //TODO/Note: no need to close opened threads as they are background threads and close when the main thread closes
             //Stop running the server after the controller is disposed of
             StopServerThread(serverCts);
+            // TODO: Implement IDisposable?
+            server.Dispose();
         }
 
         /// <summary>
@@ -135,7 +137,7 @@ namespace ContainerShippingProgram.Controllers
             }
 
             //TODO: Rename
-            MessageEventArgs currentCommandEventArgs = new MessageEventArgs();
+            MessageEventArgs currentMessageEventArgs = new MessageEventArgs();
 
 
             //Infinite loop - keep server alive for the duration of the program
@@ -150,18 +152,19 @@ namespace ContainerShippingProgram.Controllers
 
                 //TODO: Take in commands
                 //TODO: Remove - not in accordance to the protocol, here for testing purposes
-                currentCommandEventArgs.Message = "Server ready";
-                MessageToPrintReceived?.Invoke(this, currentCommandEventArgs);
+                currentMessageEventArgs.Message = "Server ready";
+                MessageToPrintReceived?.Invoke(this, currentMessageEventArgs);
 
                 // Accept client
+                // TODO: Create a sub-thread per client
                 server.AcceptClient();
 
                 //Send welcome message
                 if (server.IsClientConnected)
                 {
                     server.WriteLine(ProtocolMessages.Welcome);
-                    currentCommandEventArgs.Message = ProtocolMessages.Welcome;
-                    MessageToPrintReceived?.Invoke(this, currentCommandEventArgs);
+                    currentMessageEventArgs.Message = ProtocolMessages.Welcome;
+                    MessageToPrintReceived?.Invoke(this, currentMessageEventArgs);
                 }
 
 
@@ -175,6 +178,8 @@ namespace ContainerShippingProgram.Controllers
 
                 // Client wants to disconnect
                 server.DisconnectClient();
+                //TODO: Delete
+                Console.WriteLine("Client disconnected");
             }
         }
 
@@ -188,7 +193,7 @@ namespace ContainerShippingProgram.Controllers
             do
             {
                 // NOTE: ReadLine IS BLOCKING
-                string command = server.ReadLine().Trim();
+                string command = server.ReadLine()?.Trim();
                 HandleCommand(command);
             }
             while (!token.IsCancellationRequested);
@@ -205,10 +210,10 @@ namespace ContainerShippingProgram.Controllers
         /// <param name="command">The command to handle</param>
         private void HandleCommand(string command)
         {
-            // TODO: should null commands be ignored or treated as stop?
             if (command == null)
             {
                 //null commands are ignored
+                StopCommandReceived?.Invoke(this, EventArgs.Empty);
                 return;
             }
 

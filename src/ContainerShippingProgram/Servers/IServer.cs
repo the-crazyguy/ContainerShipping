@@ -1,8 +1,9 @@
-﻿using System.Net.Sockets;
+﻿using System;
+using System.Net.Sockets;
 
 namespace ContainerShippingProgram.Servers
 {
-    internal interface IServer
+    public interface IServer : IDisposable
     {
         #region Properties
         /// <summary>
