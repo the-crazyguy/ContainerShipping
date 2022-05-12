@@ -23,8 +23,10 @@ namespace ContainerShippingProgram.Controllers
         /// </summary>
         public IReadOnlyCollection<BaseContainer> Containers => containers.AsReadOnly();
 
+        private ContainerBuildingState containerBuildingState;
         private int currentContainerId;
         private int GetNewContainerId() => currentContainerId++;
+        private BaseContainer currentContainer = null;
 
         private IServer server;
 
@@ -38,11 +40,11 @@ namespace ContainerShippingProgram.Controllers
         /// <summary>
         /// Event for when an unrecognized command is received
         /// </summary>
-        public event EventHandler<MessageEventArgs> UnrecognizedCommandReceived;    // TODO: Use another eventArgs for the commands
+        public event EventHandler<MessageEventArgs> UnrecognizedCommandReceived;    // TODO: Use another eventArgs for the commands, or remove
         /// <summary>
         /// Event for when a message that has to be displayed by the view is received
         /// </summary>
-        public event EventHandler<MessageEventArgs> MessageToPrintReceived; //TODO: Rename, use another eventArgs?
+        public event EventHandler<MessageEventArgs> MessageToPrintReceived;
         /// <summary>
         /// Event for when an empty command has been received
         /// </summary>
@@ -50,14 +52,15 @@ namespace ContainerShippingProgram.Controllers
         /// <summary>
         /// Event for when the stop command has been received
         /// </summary>
-        public event EventHandler StopCommandReceived;
+        public event EventHandler<DisconnectEventArgs> DisconnectionRequested;
 
         /// <summary>
         /// Default constructor for <see cref="ContainerController"/>
         /// </summary>
         public ContainerController()
         {
-            currentContainerId = 0;
+            currentContainerId = ProgramConstants.MinIdValue;
+            containerBuildingState = ContainerBuildingState.WaitingForStart;
 
             containers = new List<BaseContainer>();
             server = new Server("0.0.0.0", 1234);
@@ -77,16 +80,21 @@ namespace ContainerShippingProgram.Controllers
         /// </summary>
         private void SubscribeToEvents()
         {
-            StopCommandReceived += StopCommandReceivedEventHandler;
+            DisconnectionRequested += DisconnectionRequestedEventHandler;
         }
 
         /// <summary>
         /// Event handler for when a stop command is received
         /// </summary>
-        private void StopCommandReceivedEventHandler(object sender, EventArgs e)
+        private void DisconnectionRequestedEventHandler(object sender, DisconnectEventArgs e)
         {
             currentContainer = null;
             commandCts.Cancel();
+
+            if (e.IsRequestedByUser)
+            {
+                //TODO: Print/generate report
+            }
         }
 
         /// <summary>
@@ -184,8 +192,6 @@ namespace ContainerShippingProgram.Controllers
 
                 // Client wants to disconnect
                 server.DisconnectClient();
-                //TODO: Delete
-                Console.WriteLine("Client disconnected");
             }
         }
 
@@ -198,28 +204,51 @@ namespace ContainerShippingProgram.Controllers
         {
             do
             {
-                // NOTE: ReadLine IS BLOCKING
+                // NOTE: ReadLine() is blocking
                 string command = server.ReadLine()?.Trim();
-                HandleCommand(command);
+
+                try
+                {
+                    HandleCommand(command);
+                }
+                catch (ContainerProtocolException ex)
+                {
+                    server.WriteLine($"{ProtocolMessages.ErrorPrefix}{ex.Message}");
+                }
+                catch (ContainerException ex)
+                {
+                    server.WriteLine($"{ProtocolMessages.ErrorPrefix}{ex.Message}");
+                }
+                catch (InvalidContainerBuildingStateException ex)
+                {
+                    MessageToPrintReceived?.Invoke(this, new MessageEventArgs(ex.Message));
+                    DisconnectionRequested?.Invoke(this, new DisconnectEventArgs(isRequestedByUser: false));
+                }
+                catch (Exception)
+                {
+                    //TODO: Handle all exception types
+                }
             }
             while (!token.IsCancellationRequested);
         }
 
-        // TODO: Move to top and initialize in constructor
-        private ContainerBuildingState containerBuildingState = ContainerBuildingState.WaitingForStart;
-        private BaseContainer currentContainer = null;
-        //private ContainerBuilder currentContainerBuilder = new ContainerBuilder();
 
         /// <summary>
         /// Handles the provided command
         /// </summary>
         /// <param name="command">The command to handle</param>
+        /// <exception cref="UnrecognizedCommandException">Thrown when an unrecognized command is received</exception>
+        /// <exception cref="InvalidContainerTypeException">Thrown when an invalid container type is encountered</exception>
+        /// <exception cref="InvalidContainerWeightException">Thrown when an invalid weight is encountered</exception>
+        /// <exception cref="InvalidContainerVolumeException">Thrown when an invalid volume is encountered</exception>
+        /// <exception cref="InvalidContainerBuildingStateException">Thrown when an invalid container building state is reached</exception>
         private void HandleCommand(string command)
         {
+            #region Guard statements
             if (command == null)
             {
                 //null means the server could not read anything, therefore the connection was (forced) broken
-                StopCommandReceived?.Invoke(this, EventArgs.Empty);
+                DisconnectionRequested?.Invoke(this, new DisconnectEventArgs(isRequestedByUser: false));
                 return;
             }
 
@@ -233,10 +262,12 @@ namespace ContainerShippingProgram.Controllers
             if (command == ProtocolMessages.Stop)
             {
                 server.WriteLine(ProtocolMessages.Acknowledge);
-                StopCommandReceived?.Invoke(this, EventArgs.Empty); //Event is raised in case the view needs to react
+                DisconnectionRequested?.Invoke(this, new DisconnectEventArgs(isRequestedByUser: true)); //Event is raised in case the view needs to react
                 return;
             }
+            #endregion
 
+            #region Container building state machine
             switch (containerBuildingState)
             {
                 case ContainerBuildingState.WaitingForStart:
@@ -350,6 +381,7 @@ namespace ContainerShippingProgram.Controllers
                 default:
                     throw new InvalidContainerBuildingStateException();
             }
+            #endregion
 
             // TODO: Unrecognized command handling
             //Unrecognized command, raise an event

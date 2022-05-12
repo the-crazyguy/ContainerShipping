@@ -26,7 +26,7 @@ namespace ContainerShippingProgram
 
         public const string Acknowledge = "ACK";
 
-        public const string Error = "ERR";
+        public const string ErrorPrefix = "ERR;";
         
     }
 }
