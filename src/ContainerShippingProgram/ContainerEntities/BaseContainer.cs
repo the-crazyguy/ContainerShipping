@@ -33,15 +33,24 @@ namespace ContainerShippingProgram.ContainerEntities
         /// <summary>
         /// The description of the container
         /// </summary>
-        public string Description { get; }
+        public string Description { get; set; }
         /// <summary>
         /// The country of origin of the container
         /// </summary>
-        public string OriginCountry { get; }
+        public string OriginCountry { get; set; }
 
         #region Public Constructors
+
         /// <summary>
-        /// Default constructor for containers
+        /// Basic constructor for containers
+        /// </summary>
+        /// <param name="id">The unique id of the container</param>
+        public BaseContainer(int id) : this(id, string.Empty, string.Empty)
+        {
+        }
+        
+        /// <summary>
+        /// Detailed constructor for containers
         /// </summary>
         /// <param name="id">The unique id of the container</param>
         /// <param name="description">The description of the container</param>

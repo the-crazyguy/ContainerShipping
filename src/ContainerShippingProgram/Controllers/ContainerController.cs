@@ -150,7 +150,6 @@ namespace ContainerShippingProgram.Controllers
                     return;
                 }
 
-                //TODO: Take in commands
                 //TODO: Remove - not in accordance to the protocol, here for testing purposes
                 currentMessageEventArgs.Message = "Server ready";
                 MessageToPrintReceived?.Invoke(this, currentMessageEventArgs);
@@ -212,7 +211,7 @@ namespace ContainerShippingProgram.Controllers
         {
             if (command == null)
             {
-                //null commands are ignored
+                //null means the server could not read anything, therefore the connection was (forced) broken
                 StopCommandReceived?.Invoke(this, EventArgs.Empty);
                 return;
             }

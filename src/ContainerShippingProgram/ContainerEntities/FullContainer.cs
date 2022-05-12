@@ -21,7 +21,7 @@ namespace ContainerShippingProgram.ContainerEntities
         public decimal Weight
         {
             get { return weight; }
-            private set 
+            set 
             {
                 if (value < ProgramConstants.MinContainerContentsWeight)
                 {
@@ -37,10 +37,28 @@ namespace ContainerShippingProgram.ContainerEntities
         /// <summary>
         /// Determines whether the container is refridgerated or not
         /// </summary>
-        public bool IsRefridgerated { get; }
+        public bool IsRefridgerated { get; set; }
 
         /// <summary>
-        /// Default constructor for full containers
+        /// Basic constructor for full containers
+        /// </summary>
+        /// <param name="id">The unique id of the container</param>
+        public FullContainer(int id) : this(id, string.Empty, string.Empty)
+        {
+        }
+
+        /// <summary>
+        /// Detailed constructor for a full container
+        /// </summary>
+        /// <param name="id">The unique id of the container</param>
+        /// <param name="description">The description of the container</param>
+        /// <param name="originCountry">The country of origin of the container</param>
+        public FullContainer(int id, string description, string originCountry) : this (id, description, originCountry, 0m, false)
+        {
+        }
+
+        /// <summary>
+        /// Full parameter constructor for full containers
         /// </summary>
         /// <param name="id">The unique id of the container</param>
         /// <param name="description">The description of the container</param>

@@ -18,7 +18,7 @@ namespace ContainerShippingProgram.ContainerEntities
         public decimal Volume
         {
             get { return volume; }
-            private set 
+            set 
             {
                 if (value < ProgramConstants.MinContainerContentsVolume)
                 {
@@ -33,7 +33,25 @@ namespace ContainerShippingProgram.ContainerEntities
         }
 
         /// <summary>
-        /// Default constructor for half containers
+        /// Basic constructor for half containers
+        /// </summary>
+        /// <param name="id"></param>
+        public HalfContainer(int id) : this (id, string.Empty, string.Empty)
+        {
+        }
+
+        /// <summary>
+        /// Detailed constructor for half containers
+        /// </summary>
+        /// <param name="id">The unique id of the container</param>
+        /// <param name="description">The description of the container</param>
+        /// <param name="originCountry">The country of origin of the container</param>
+        public HalfContainer(int id, string description, string originCountry) : this(id, description, originCountry, 0m)
+        {
+        }
+
+        /// <summary>
+        /// Full parameter constructor for half containers
         /// </summary>
         /// <param name="id">The unique id of the container</param>
         /// <param name="description">The description of the container</param>

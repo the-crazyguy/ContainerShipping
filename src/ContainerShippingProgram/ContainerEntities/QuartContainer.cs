@@ -12,6 +12,14 @@ namespace ContainerShippingProgram.ContainerEntities
         /// Default constructor for quart containers
         /// </summary>
         /// <param name="id">The unique id of the container</param>
+        public QuartContainer(int id) : this(id, string.Empty, string.Empty)
+        {
+        }
+
+        /// <summary>
+        /// Detailed constructor for quart containers
+        /// </summary>
+        /// <param name="id">The unique id of the container</param>
         /// <param name="description">The description of the container</param>
         /// <param name="originCountry">The country of origin of the container</param>
         public QuartContainer(int id, string description, string originCountry) : base(id, description, originCountry)
