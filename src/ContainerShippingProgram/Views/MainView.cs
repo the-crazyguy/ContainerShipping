@@ -53,7 +53,7 @@ namespace ContainerShippingProgram.Views
         private async Task ShowContainersReport()
         {
             string report = await containerController.GetFullReportAsync();
-
+            Console.Clear();
             Console.WriteLine(report);
         }
     }

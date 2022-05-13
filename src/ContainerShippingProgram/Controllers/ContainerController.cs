@@ -161,13 +161,9 @@ namespace ContainerShippingProgram.Controllers
                 if (serverToken.IsCancellationRequested)
                 {
                     //Stop the server
-                    //TODO: Clean-up, if any
+                    server.Dispose();
                     return;
                 }
-
-                //TODO: Remove - not in accordance to the protocol, here for testing purposes
-                currentMessageEventArgs.Message = "Server ready";
-                MessageToPrintReceived?.Invoke(this, currentMessageEventArgs);
 
                 // Accept client
                 // TODO: Create a sub-thread per client
@@ -364,7 +360,6 @@ namespace ContainerShippingProgram.Controllers
                     }
                     // Go to the next state
                     containerBuildingState = ContainerBuildingState.SaveContainer;
-                    
                     break;
                 
                 case ContainerBuildingState.SaveContainer:
@@ -380,8 +375,10 @@ namespace ContainerShippingProgram.Controllers
             if (containerBuildingState == ContainerBuildingState.SaveContainer)
             {
                 SaveCurrentContainer();
+                server.WriteLine(ProtocolMessages.Acknowledge);
                 //TODO: Determine whether to end the connection or keep reading via the view - let the user set up the server
-                containerBuildingState = ContainerBuildingState.WaitingForStart;
+                //containerBuildingState = ContainerBuildingState.WaitingForStart;
+                DisconnectionRequested?.Invoke(this, new DisconnectEventArgs(isRequestedByUser: true));
             }
             #endregion
         }
@@ -400,17 +397,15 @@ namespace ContainerShippingProgram.Controllers
         /// <returns>A string containing the rerport</returns>
         public async Task<string> GetFullReportAsync()
         {
-            //TODO: Test
-            //Initialization
+            #region Initialization
             int columnsCount = 5;
             const int columnWidth = 15;
 
             string fullLineSeparator = new string('_', columnsCount * columnWidth + 2);
             string tableTitleLine = string.Format($"{"Id",-columnWidth}{ "Weight",-columnWidth }{"Volume",-columnWidth}{"Refrid",-columnWidth} {"Fee",-columnWidth}");
+            string currentLine;
             
             List<string> output = new List<string>();
-            string currentLine = string.Empty;
-
             output.Add(fullLineSeparator);
             output.Add(tableTitleLine);
             output.Add(fullLineSeparator);
@@ -418,6 +413,7 @@ namespace ContainerShippingProgram.Controllers
             List<FullContainer> fullContainers = new List<FullContainer>();
             List<HalfContainer> halfContainers = new List<HalfContainer>();
             List<QuartContainer> quartContainers = new List<QuartContainer>();
+            #endregion
 
             #region Separate containers by type
             foreach (BaseContainer container in containers)
@@ -448,7 +444,7 @@ namespace ContainerShippingProgram.Controllers
             {
                 decimal currentContainerFees = container.CalculateFees();
                 fullContainersTotalFees += currentContainerFees;
-                
+
                 currentLine = string.Format($"{container.Id,-columnWidth}{container.Weight.ToString() + "kg",-columnWidth }{string.Empty,-columnWidth}{(container.IsRefridgerated ? "Y" : "N"),-columnWidth}{currentContainerFees,-columnWidth:C2}");
                 output.Add(currentLine);
             }
@@ -492,10 +488,11 @@ namespace ContainerShippingProgram.Controllers
             output.Add(currentLine);
             #endregion
 
-            //Add the grand total:
+            #region Grand total
             decimal totalContainerFees = fullContainersTotalFees + halfContainersTotalFees + quartContainersTotalFees;
             currentLine = string.Format($"{string.Empty,-(columnWidth * 3)}{"Grand Total:",-columnWidth}{totalContainerFees,-columnWidth:C2}");
             output.Add(currentLine);
+            #endregion
 
             //Convert the result to a single string
             string result = string.Join('\n', output);
