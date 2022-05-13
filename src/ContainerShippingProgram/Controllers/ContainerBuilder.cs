@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ContainerShippingProgram.Controllers
 {
-    //TODO: Just make the sub-container properties public ffs...
+    //TODO: Remove
     public class ContainerBuilder
     {
         public int? Id { get; set; }

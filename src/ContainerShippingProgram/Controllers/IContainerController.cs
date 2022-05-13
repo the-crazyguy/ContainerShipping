@@ -2,6 +2,7 @@
 using ContainerShippingProgram.Events;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace ContainerShippingProgram.Controllers
 {
@@ -20,10 +21,6 @@ namespace ContainerShippingProgram.Controllers
         #region Events
 
         /// <summary>
-        /// Event for when an unrecognized command is received
-        /// </summary>
-        public event EventHandler<MessageEventArgs> UnrecognizedCommandReceived;
-        /// <summary>
         /// Event for when a message that has to be displayed by the view is received
         /// </summary>
         public event EventHandler<MessageEventArgs> MessageToPrintReceived;
@@ -40,7 +37,11 @@ namespace ContainerShippingProgram.Controllers
 
 
         #region Methods
-
+        /// <summary>
+        /// Generates a full report for the containers asynchronously
+        /// </summary>
+        /// <returns>A string containing the rerport</returns>
+        Task<string> GetFullReportAsync();
         #endregion
     }
 }

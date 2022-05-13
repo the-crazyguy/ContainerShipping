@@ -26,6 +26,7 @@ namespace ContainerShippingProgram.Controllers
         private ContainerBuildingState containerBuildingState;
         private int currentContainerId;
         private int GetNewContainerId() => currentContainerId++;
+
         private BaseContainer currentContainer = null;
 
         private IServer server;
@@ -37,10 +38,6 @@ namespace ContainerShippingProgram.Controllers
 
 
         //Events
-        /// <summary>
-        /// Event for when an unrecognized command is received
-        /// </summary>
-        public event EventHandler<MessageEventArgs> UnrecognizedCommandReceived;    // TODO: Use another eventArgs for the commands, or remove
         /// <summary>
         /// Event for when a message that has to be displayed by the view is received
         /// </summary>
@@ -64,7 +61,6 @@ namespace ContainerShippingProgram.Controllers
 
             containers = new List<BaseContainer>();
             server = new Server("0.0.0.0", 1234);
-            
             serverCts = new CancellationTokenSource();
 
             //Initialize a separate thread to run the server on
@@ -90,10 +86,16 @@ namespace ContainerShippingProgram.Controllers
         {
             currentContainer = null;
             commandCts.Cancel();
+            //TODO: Print/generate report
+
 
             if (e.IsRequestedByUser)
             {
-                //TODO: Print/generate report
+                //Inform for successful disconnection
+            }
+            else
+            {
+                //Inform for unsuccessful disconnection
             }
         }
 
@@ -175,9 +177,6 @@ namespace ContainerShippingProgram.Controllers
                 if (server.IsClientConnected)
                 {
                     server.WriteLine(ProtocolMessages.Welcome);
-                    currentMessageEventArgs.Message = ProtocolMessages.Welcome;
-                    MessageToPrintReceived?.Invoke(this, currentMessageEventArgs);
-
                     containerBuildingState = ContainerBuildingState.WaitingForStart;
                 }
 
@@ -223,10 +222,6 @@ namespace ContainerShippingProgram.Controllers
                 {
                     MessageToPrintReceived?.Invoke(this, new MessageEventArgs(ex.Message));
                     DisconnectionRequested?.Invoke(this, new DisconnectEventArgs(isRequestedByUser: false));
-                }
-                catch (Exception)
-                {
-                    //TODO: Handle all exception types
                 }
             }
             while (!token.IsCancellationRequested);
@@ -369,24 +364,143 @@ namespace ContainerShippingProgram.Controllers
                     }
                     // Go to the next state
                     containerBuildingState = ContainerBuildingState.SaveContainer;
+                    
                     break;
                 
                 case ContainerBuildingState.SaveContainer:
-                    containers.Add(currentContainer);
-                    currentContainer = null;
-                    //TODO: Determine whether to end the connection or keep reading via the view - let the user set up the server
-                    containerBuildingState = ContainerBuildingState.WaitingForStart;
+                    // Saving is handled outside the switch-case but is still a valid state - kept here in case of a future fall-through
                     break;
                 
                 default:
                     throw new InvalidContainerBuildingStateException();
             }
+
+            // Note: If statement outside the switch case to avoid using a goto statement for saving
+            // Otherwise, the user will be prompted to enter a string to get back into the state machine to execute the saving
+            if (containerBuildingState == ContainerBuildingState.SaveContainer)
+            {
+                SaveCurrentContainer();
+                //TODO: Determine whether to end the connection or keep reading via the view - let the user set up the server
+                containerBuildingState = ContainerBuildingState.WaitingForStart;
+            }
+            #endregion
+        }
+
+        private void SaveCurrentContainer()
+        {
+            if (currentContainer != null)
+            {
+                containers.Add(currentContainer);
+            }
+        }
+
+        /// <summary>
+        /// Generates a full report for the containers asynchronously
+        /// </summary>
+        /// <returns>A string containing the rerport</returns>
+        public async Task<string> GetFullReportAsync()
+        {
+            //TODO: Test
+            //Initialization
+            int columnsCount = 5;
+            const int columnWidth = 15;
+
+            string fullLineSeparator = new string('_', columnsCount * columnWidth + 2);
+            string tableTitleLine = string.Format($"{"Id",-columnWidth}{ "Weight",-columnWidth }{"Volume",-columnWidth}{"Refrid",-columnWidth} {"Fee",-columnWidth}");
+            
+            List<string> output = new List<string>();
+            string currentLine = string.Empty;
+
+            output.Add(fullLineSeparator);
+            output.Add(tableTitleLine);
+            output.Add(fullLineSeparator);
+
+            List<FullContainer> fullContainers = new List<FullContainer>();
+            List<HalfContainer> halfContainers = new List<HalfContainer>();
+            List<QuartContainer> quartContainers = new List<QuartContainer>();
+
+            #region Separate containers by type
+            foreach (BaseContainer container in containers)
+            {
+                if (container is FullContainer)
+                {
+                    fullContainers.Add(container as FullContainer);
+                }
+                else if (container is HalfContainer)
+                {
+                    halfContainers.Add(container as HalfContainer);
+                }
+                else if (container is QuartContainer)
+                {
+                    quartContainers.Add(container as QuartContainer);
+                }
+                else
+                {
+                    // Do nothing
+                }
+            }
             #endregion
 
-            // TODO: Unrecognized command handling
-            //Unrecognized command, raise an event
-            //Question/TODO: Should empty commands be treated as unrecognized commands to eliminate the need for the extra event?
-            //UnrecognizedCommandReceived?.Invoke(this, new CommandEventArgs(command));
+            #region Full Size
+            output.Add("Full size");
+            decimal fullContainersTotalFees = 0m;
+            foreach (FullContainer container in fullContainers)
+            {
+                decimal currentContainerFees = container.CalculateFees();
+                fullContainersTotalFees += currentContainerFees;
+                
+                currentLine = string.Format($"{container.Id,-columnWidth}{container.Weight.ToString() + "kg",-columnWidth }{string.Empty,-columnWidth}{(container.IsRefridgerated ? "Y" : "N"),-columnWidth}{currentContainerFees,-columnWidth:C2}");
+                output.Add(currentLine);
+            }
+
+            //Add total:
+            currentLine = string.Format($"{string.Empty,-(columnWidth * 3)}{"Total:",-columnWidth}{fullContainersTotalFees,-columnWidth:C2}");
+            output.Add(currentLine);
+            #endregion
+
+            #region Half Size
+            output.Add("Half Size");
+            decimal halfContainersTotalFees = 0m;
+            foreach (HalfContainer container in halfContainers)
+            {
+                decimal currentContainerFees = container.CalculateFees();
+                halfContainersTotalFees += currentContainerFees;
+                
+                currentLine = string.Format($"{container.Id,-columnWidth}{string.Empty,-columnWidth}{container.Volume.ToString() + "m3",-columnWidth}{"N/A",-columnWidth}{currentContainerFees,-columnWidth:C2}");
+                output.Add(currentLine);
+            }
+
+            //Add total:
+            currentLine = string.Format($"{string.Empty,-(columnWidth * 3)}{"Total:",-columnWidth}{halfContainersTotalFees,-columnWidth:C2}");
+            output.Add(currentLine);
+            #endregion
+
+            #region Quart Size
+            output.Add("Quart Size");
+            decimal quartContainersTotalFees = 0m;
+            foreach (QuartContainer container in quartContainers)
+            {
+                decimal currentContainerFees = container.CalculateFees();
+                quartContainersTotalFees += currentContainerFees;
+
+                currentLine = string.Format($"{container.Id,-columnWidth}{string.Empty,-columnWidth }{string.Empty,-columnWidth}{"N/A",-columnWidth}{currentContainerFees,-columnWidth:C2}");
+                output.Add(currentLine);
+            }
+
+            //Add total:
+            currentLine = string.Format($"{string.Empty,-(columnWidth * 3)}{"Total:",-columnWidth}{quartContainersTotalFees,-columnWidth:C2}");
+            output.Add(currentLine);
+            #endregion
+
+            //Add the grand total:
+            decimal totalContainerFees = fullContainersTotalFees + halfContainersTotalFees + quartContainersTotalFees;
+            currentLine = string.Format($"{string.Empty,-(columnWidth * 3)}{"Grand Total:",-columnWidth}{totalContainerFees,-columnWidth:C2}");
+            output.Add(currentLine);
+
+            //Convert the result to a single string
+            string result = string.Join('\n', output);
+            return result;
         }
+
     }
 }
