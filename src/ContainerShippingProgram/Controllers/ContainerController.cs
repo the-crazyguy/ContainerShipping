@@ -86,7 +86,6 @@ namespace ContainerShippingProgram.Controllers
         {
             currentContainer = null;
             commandCts.Cancel();
-            //TODO: Print/generate report
 
 
             if (e.IsRequestedByUser)
@@ -104,9 +103,6 @@ namespace ContainerShippingProgram.Controllers
         /// </summary>
         ~ContainerController()
         {
-            //Destructor
-            //TODO/Note: no need to close opened threads as they are background threads and close when the main thread closes
-            //Stop running the server after the controller is disposed of
             StopServerThread(serverCts);
             // TODO: Implement IDisposable?
             server.Dispose();
@@ -209,16 +205,19 @@ namespace ContainerShippingProgram.Controllers
                 catch (ContainerProtocolException ex)
                 {
                     server.WriteLine($"{ProtocolMessages.ErrorPrefix}{ex.Message}");
+                    DisconnectionRequested?.Invoke(this, new DisconnectEventArgs(isRequestedByUser: false));
                 }
                 catch (ContainerException ex)
                 {
                     server.WriteLine($"{ProtocolMessages.ErrorPrefix}{ex.Message}");
+                    DisconnectionRequested?.Invoke(this, new DisconnectEventArgs(isRequestedByUser: false));
                 }
                 catch (InvalidContainerBuildingStateException ex)
                 {
                     MessageToPrintReceived?.Invoke(this, new MessageEventArgs(ex.Message));
                     DisconnectionRequested?.Invoke(this, new DisconnectEventArgs(isRequestedByUser: false));
                 }
+                //Note: Can you use add a block that is going to be executed after ANY of the above exceptions is caught?
             }
             while (!token.IsCancellationRequested);
         }
@@ -266,7 +265,7 @@ namespace ContainerShippingProgram.Controllers
                     {
                         currentContainer = new BaseContainer(GetNewContainerId());
                         server.WriteLine(ProtocolMessages.Type);
-                        //TODO: Description and origin country
+                        //TODO: Description and origin country? Not in the provided protocol
                         // Go to the next state
                         containerBuildingState = ContainerBuildingState.DetermineType;
                     }
@@ -317,7 +316,6 @@ namespace ContainerShippingProgram.Controllers
                             break;
 
                         default:
-                            //UnrecognizedCommandReceived?.Invoke(this, new MessageEventArgs(command));
                             throw new UnrecognizedCommandException(command);
                     }
 
@@ -397,6 +395,16 @@ namespace ContainerShippingProgram.Controllers
         /// <returns>A string containing the rerport</returns>
         public async Task<string> GetFullReportAsync()
         {
+            //Note: Asynchronous, as this could take a long time for a lot of containers
+            return await Task.Run(() => GetFullReport());
+        }
+
+        /// <summary>
+        /// Generates a full report for the containers
+        /// </summary>
+        /// <returns>A string containing the rerport</returns>
+        public string GetFullReport()
+        {
             #region Initialization
             int columnsCount = 5;
             const int columnWidth = 15;
@@ -404,7 +412,7 @@ namespace ContainerShippingProgram.Controllers
             string fullLineSeparator = new string('_', columnsCount * columnWidth + 2);
             string tableTitleLine = string.Format($"{"Id",-columnWidth}{ "Weight",-columnWidth }{"Volume",-columnWidth}{"Refrid",-columnWidth} {"Fee",-columnWidth}");
             string currentLine;
-            
+
             List<string> output = new List<string>();
             output.Add(fullLineSeparator);
             output.Add(tableTitleLine);
@@ -450,7 +458,7 @@ namespace ContainerShippingProgram.Controllers
             }
 
             //Add total:
-            currentLine = string.Format($"{string.Empty,-(columnWidth * 3)}{"Total:",-columnWidth}{fullContainersTotalFees,-columnWidth:C2}");
+            currentLine = string.Format($"{string.Empty,-(columnWidth * 3)}{"Total: ",+columnWidth}{fullContainersTotalFees,-columnWidth:C2}");
             output.Add(currentLine);
             #endregion
 
@@ -461,13 +469,13 @@ namespace ContainerShippingProgram.Controllers
             {
                 decimal currentContainerFees = container.CalculateFees();
                 halfContainersTotalFees += currentContainerFees;
-                
+
                 currentLine = string.Format($"{container.Id,-columnWidth}{string.Empty,-columnWidth}{container.Volume.ToString() + "m3",-columnWidth}{"N/A",-columnWidth}{currentContainerFees,-columnWidth:C2}");
                 output.Add(currentLine);
             }
 
             //Add total:
-            currentLine = string.Format($"{string.Empty,-(columnWidth * 3)}{"Total:",-columnWidth}{halfContainersTotalFees,-columnWidth:C2}");
+            currentLine = string.Format($"{string.Empty,-(columnWidth * 3)}{"Total: ",+columnWidth}{halfContainersTotalFees,-columnWidth:C2}");
             output.Add(currentLine);
             #endregion
 
@@ -484,13 +492,13 @@ namespace ContainerShippingProgram.Controllers
             }
 
             //Add total:
-            currentLine = string.Format($"{string.Empty,-(columnWidth * 3)}{"Total:",-columnWidth}{quartContainersTotalFees,-columnWidth:C2}");
+            currentLine = string.Format($"{string.Empty,-(columnWidth * 3)}{"Total: ",+columnWidth}{quartContainersTotalFees,-columnWidth:C2}");
             output.Add(currentLine);
             #endregion
 
             #region Grand total
             decimal totalContainerFees = fullContainersTotalFees + halfContainersTotalFees + quartContainersTotalFees;
-            currentLine = string.Format($"{string.Empty,-(columnWidth * 3)}{"Grand Total:",-columnWidth}{totalContainerFees,-columnWidth:C2}");
+            currentLine = string.Format($"{string.Empty,-(columnWidth * 3)}{"Grand Total: ",+columnWidth}{totalContainerFees,-columnWidth:C2}");
             output.Add(currentLine);
             #endregion
 

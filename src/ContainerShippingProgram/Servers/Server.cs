@@ -30,7 +30,6 @@ namespace ContainerShippingProgram.Servers
         /// </summary>
         public bool IsClientConnected => clientSocket.Connected;
 
-        //TODO: Set an actual ip
         private IPAddress serverIpAddress;
         private int port;
         private IPEndPoint localEndPoint;
@@ -62,7 +61,6 @@ namespace ContainerShippingProgram.Servers
         {
             isDisposed = false;
             
-            //TODO: Try-catch block?
             serverIpAddress = IPAddress.Parse(ip);
             this.port = port;
             localEndPoint = new IPEndPoint(serverIpAddress, this.port);
@@ -106,7 +104,7 @@ namespace ContainerShippingProgram.Servers
             streamWriter = null;
         }
 
-        // TODO: method to check if data is available
+        // TODO: method to check if data is available to avoid blocking behaviour of ReadLine()
 
         /// <summary>
         /// Reads a line from the server. Blocking

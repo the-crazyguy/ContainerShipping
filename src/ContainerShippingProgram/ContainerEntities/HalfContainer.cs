@@ -9,7 +9,6 @@ namespace ContainerShippingProgram.ContainerEntities
 {
     public class HalfContainer : BaseContainer
     {
-        //TODO: Do you need public sets for values or should everything be set upon creation?
         private decimal volume;
         /// <summary>
         /// The volume of the container's contents

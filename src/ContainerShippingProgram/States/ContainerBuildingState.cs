@@ -8,7 +8,6 @@ namespace ContainerShippingProgram.States
 {
     enum ContainerBuildingState
     {
-        //TODO: is there a better way to handle...?
         WaitingForStart,
         DetermineType,
         DetermineRefridgeration,

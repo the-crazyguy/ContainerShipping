@@ -12,7 +12,6 @@ namespace ContainerShippingProgram.ContainerEntities
     /// </summary>
     public class FullContainer : BaseContainer
     {
-        //TODO: Do you need public sets for values or should everything be set upon creation?
         private decimal weight;
         /// <summary>
         /// The weight of the container's contents

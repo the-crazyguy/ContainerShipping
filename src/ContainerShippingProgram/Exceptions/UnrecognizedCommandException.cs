@@ -11,8 +11,8 @@ namespace ContainerShippingProgram.Exceptions
     public class UnrecognizedCommandException : ContainerProtocolException
     {
         public UnrecognizedCommandException() : this("Unrecognized command received") { }
-        public UnrecognizedCommandException(string message) : base(message) { }
-        public UnrecognizedCommandException(string message, Exception inner) : base(message, inner) { }
+        public UnrecognizedCommandException(string command) : base($"Unrecognized command received: {command}") { }
+        public UnrecognizedCommandException(string command, Exception inner) : base($"Unrecognized command received: {command}", inner) { }
         protected UnrecognizedCommandException(
           System.Runtime.Serialization.SerializationInfo info,
           System.Runtime.Serialization.StreamingContext context) : base(info, context) { }

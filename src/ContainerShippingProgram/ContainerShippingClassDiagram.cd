@@ -1,0 +1,167 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="ContainerShippingProgram.ContainerEntities.BaseContainer" Collapsed="true">
+    <Position X="4.5" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAgAAAAAAAAAAAAAgAAQAAAAAAAAAAAAgA=</HashCode>
+      <FileName>ContainerEntities\BaseContainer.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ContainerShippingProgram.ContainerEntities.FullContainer" Collapsed="true">
+    <Position X="2.25" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAiAAAAAgAAAAAAEAAAA=</HashCode>
+      <FileName>ContainerEntities\FullContainer.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ContainerShippingProgram.ContainerEntities.HalfContainer" Collapsed="true">
+    <Position X="4.5" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAIAAAACAAA=</HashCode>
+      <FileName>ContainerEntities\HalfContainer.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ContainerShippingProgram.ContainerEntities.QuartContainer" Collapsed="true">
+    <Position X="6.75" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ContainerEntities\QuartContainer.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ContainerShippingProgram.Controllers.ContainerController" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="13.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAEAAAAgQAAABRAAAKAQSABAAEQQSACAAAgAEAADAAI=</HashCode>
+      <FileName>Controllers\ContainerController.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="ContainerShippingProgram.Events.DisconnectEventArgs" Collapsed="true">
+    <Position X="15" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Events\DisconnectEventArgs.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ContainerShippingProgram.Events.MessageEventArgs" Collapsed="true">
+    <Position X="13.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAA=</HashCode>
+      <FileName>Events\MessageEventArgs.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ContainerShippingProgram.Exceptions.ContainerException" Collapsed="true">
+    <Position X="5.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Exceptions\ContainerException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ContainerShippingProgram.Exceptions.ContainerProtocolException" Collapsed="true">
+    <Position X="2" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Exceptions\ContainerProtocolException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ContainerShippingProgram.Exceptions.InvalidContainerBuildingStateException" Collapsed="true">
+    <Position X="16.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Exceptions\InvalidContainerBuildingStateException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ContainerShippingProgram.Exceptions.InvalidContainerTypeException" Collapsed="true">
+    <Position X="4.5" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Exceptions\InvalidContainerTypeException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ContainerShippingProgram.Exceptions.InvalidContainerVolumeException" Collapsed="true">
+    <Position X="6.75" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Exceptions\InvalidContainerVolumeException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ContainerShippingProgram.Exceptions.InvalidContainerWeightException" Collapsed="true">
+    <Position X="9" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Exceptions\InvalidContainerWeightException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ContainerShippingProgram.Exceptions.InvalidIdException" Collapsed="true">
+    <Position X="2.25" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Exceptions\InvalidIdException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ContainerShippingProgram.Exceptions.UnrecognizedCommandException" Collapsed="true">
+    <Position X="2" Y="8" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Exceptions\UnrecognizedCommandException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ContainerShippingProgram.Servers.Server" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="13.25" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AChgAAAAACAAAAAIMAAAQBAIAIAAEBgAIAAAAABAAAA=</HashCode>
+      <FileName>Servers\Server.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="ContainerShippingProgram.Views.MainView" Collapsed="true">
+    <Position X="11.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAIAABAAEQAAAAQAAAAAAAAAAAAgAAAA=</HashCode>
+      <FileName>Views\MainView.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ContainerShippingProgram.Program" Collapsed="true">
+    <Position X="15" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAA=</HashCode>
+      <FileName>Program.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ContainerShippingProgram.ProgramConstants" Collapsed="true">
+    <Position X="16.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAgAAAAAAAAAAAQAAEAAAAAAAAIAEAAAAABAABgAAAA=</HashCode>
+      <FileName>ProgramConstants.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ContainerShippingProgram.ProtocolMessages" Collapsed="true">
+    <Position X="11.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAgAAAACASAAAAEAAAAABAACAAAAAAMQIQAAgAAAA=</HashCode>
+      <FileName>ProtocolMessages.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Interface Name="ContainerShippingProgram.Controllers.IContainerController" Collapsed="true">
+    <Position X="11.5" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAABQAAAAAAAAAAAAQQAAAAAAgAAAAAAAA=</HashCode>
+      <FileName>Controllers\IContainerController.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="ContainerShippingProgram.Servers.IServer" Collapsed="true">
+    <Position X="13.25" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AABgAAAAACAAAAAIIAAAQAAIAAAAAAAAIAAAAAAAAAA=</HashCode>
+      <FileName>Servers\IServer.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Enum Name="ContainerShippingProgram.States.ContainerBuildingState" Collapsed="true">
+    <Position X="11.5" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEAAEAAAAAAAAAAQAIAAAAAAAAAAAgAAAAAgAAAAAAA=</HashCode>
+      <FileName>States\ContainerBuildingState.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

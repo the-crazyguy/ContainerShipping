@@ -13,16 +13,15 @@ namespace ContainerShippingProgram
         static void Main(string[] args)
         {
 
-            ContainerController c = new ContainerController();
-
-            MainView view = new MainView(c);
+            ContainerController containerController = new ContainerController();
+            MainView view = new MainView(containerController);
 
             while (true)
             {
-                //TODO: Add a way to stop the main thread from closing
+                //Stops the main thread from closing
 
-                // Sleep for 10 seconds for optimization, the main thread is not used yet
-                //Thread.Sleep(10 * 1000);    //TODO: Remove/Reduce
+                // Sleep for 0.25 seconds for optimization
+                Thread.Sleep(250);    //TODO: Remove/Reduce/Increase
             }
         }
     }

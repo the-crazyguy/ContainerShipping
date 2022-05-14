@@ -12,7 +12,6 @@ namespace ContainerShippingProgram.ContainerEntities
     /// </summary>
     public class BaseContainer
     {
-        //TODO: Id auto-increments and has to be unique - check in controller
         private int id;
         /// <summary>
         /// Id of the container

@@ -17,7 +17,6 @@ namespace ContainerShippingProgram.Controllers
 
         #endregion
 
-
         #region Events
 
         /// <summary>
@@ -35,8 +34,12 @@ namespace ContainerShippingProgram.Controllers
 
         #endregion
 
-
         #region Methods
+        /// <summary>
+        /// Generates a full report for the containers
+        /// </summary>
+        /// <returns>A string containing the rerport</returns>
+        string GetFullReport();
         /// <summary>
         /// Generates a full report for the containers asynchronously
         /// </summary>
